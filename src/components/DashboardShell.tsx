@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -12,6 +12,8 @@ import {
   Settings,
   ShoppingCart,
   Store,
+  Moon,
+  Sun,
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +32,40 @@ const NAV_ITEMS = [
   { title: "Reports & Analytics", url: "/reports", icon: ChartColumn },
   { title: "System Settings", url: "/settings", icon: Settings },
 ] as const;
+
+const THEME_STORAGE_KEY = "venue-vue-theme";
+
+function ThemeToggle() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    setDarkMode(document.documentElement.classList.contains("dark"));
+  }, []);
+
+  function toggleTheme() {
+    const nextDarkMode = !darkMode;
+    document.documentElement.classList.toggle("dark", nextDarkMode);
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextDarkMode ? "dark" : "light");
+    setDarkMode(nextDarkMode);
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={darkMode ? "Use light theme" : "Use dark theme"}
+      title={darkMode ? "Use light theme" : "Use dark theme"}
+      aria-pressed={darkMode}
+      onClick={toggleTheme}
+      className="interactive-btn grid size-9 shrink-0 place-items-center rounded-lg border border-input bg-surface-raised text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {darkMode ? (
+        <Sun className="size-4" aria-hidden="true" />
+      ) : (
+        <Moon className="size-4" aria-hidden="true" />
+      )}
+    </button>
+  );
+}
 
 /** Signed-in user identity: email + auto-detected role from the backend. */
 export function useMe() {
@@ -204,6 +240,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </div>
 
             <ConnectionBadge />
+
+            <ThemeToggle />
 
             {/* Signed-in user: avatar, role badge, logout */}
             <div className="flex shrink-0 items-center gap-2.5 border-l border-border/60 pl-3">

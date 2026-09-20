@@ -2,7 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 /*
  * Venue Vue official design system.
@@ -96,6 +96,39 @@
     0 8px 28px -8px color-mix(in oklab, var(--slate-blue) 32%, transparent);
 }
 
+:root.dark {
+  color-scheme: dark;
+  --background: #0f172a;
+  --foreground: white;
+  --card: #1e293b;
+  --card-foreground: white;
+  --popover: color-mix(in oklab, #1e293b 92%, var(--slate-blue));
+  --popover-foreground: white;
+  --primary: var(--slate-blue);
+  --primary-foreground: white;
+  --secondary: color-mix(in oklab, #1e293b 76%, var(--soft-lavender));
+  --secondary-foreground: var(--light-lilac);
+  --muted: color-mix(in oklab, #1e293b 88%, var(--soft-lavender));
+  --muted-foreground: color-mix(in oklab, var(--light-lilac) 78%, var(--soft-lavender));
+  --accent: var(--warm-brown);
+  --accent-foreground: white;
+  --destructive: color-mix(in oklab, var(--warm-brown) 82%, white);
+  --destructive-foreground: white;
+  --border: color-mix(in oklab, var(--soft-lavender) 45%, #1e293b);
+  --input: color-mix(in oklab, var(--soft-lavender) 55%, #1e293b);
+  --ring: var(--soft-lavender);
+  --surface: color-mix(in oklab, #0f172a 76%, #1e293b);
+  --surface-raised: #1e293b;
+  --gold: color-mix(in oklab, var(--warm-brown) 42%, var(--light-lilac));
+  --gold-strong: var(--light-lilac);
+  --gold-soft: color-mix(in oklab, var(--warm-brown) 45%, #1e293b);
+  --success: var(--soft-cyan);
+  --warning: var(--light-lilac);
+  --shadow-lift: 0 12px 32px -12px color-mix(in oklab, black 68%, transparent);
+  --shadow-gold-glow: 0 0 0 1px color-mix(in oklab, var(--soft-lavender) 30%, transparent),
+    0 8px 28px -8px color-mix(in oklab, black 64%, transparent);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -122,6 +155,15 @@
     font-family: var(--font-display);
     letter-spacing: -0.01em;
     color: var(--slate-blue);
+  }
+
+  :root.dark h1,
+  :root.dark h2,
+  :root.dark h3,
+  :root.dark h4,
+  :root.dark h5,
+  :root.dark h6 {
+    color: var(--light-lilac);
   }
 
   ::selection {

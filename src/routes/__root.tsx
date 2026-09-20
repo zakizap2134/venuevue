@@ -137,6 +137,11 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
 
+  useEffect(() => {
+    const storedTheme = window.localStorage.getItem("venue-vue-theme");
+    document.documentElement.classList.toggle("dark", storedTheme === "dark");
+  }, []);
+
   // React to sign-in/sign-out anywhere in the app without thrashing on
   // hourly token refreshes.
   useEffect(() => {
