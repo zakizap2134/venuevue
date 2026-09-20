@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedEventsRouteImport } from './routes/_authenticated/events'
+import { Route as AuthenticatedRegisterRouteImport } from './routes/_authenticated/register'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,32 +26,73 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedWorkspaceRoute = AuthenticatedWorkspaceRouteImport.update({
-  id: '/workspace',
-  path: '/workspace',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEventsRoute = AuthenticatedEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRegisterRoute = AuthenticatedRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/workspace': typeof AuthenticatedWorkspaceRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/events': typeof AuthenticatedEventsRoute
+  '/register': typeof AuthenticatedRegisterRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/workspace': typeof AuthenticatedWorkspaceRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/events': typeof AuthenticatedEventsRoute
+  '/register': typeof AuthenticatedRegisterRoute
+  '/reports': typeof AuthenticatedReportsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
-  '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/events': typeof AuthenticatedEventsRoute
+  '/_authenticated/register': typeof AuthenticatedRegisterRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/workspace'
+  fullPaths:
+    '/' | '/dashboard' | '/events' | '/register' | '/reports' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/workspace'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/workspace'
+  to: '/' | '/dashboard' | '/events' | '/register' | '/reports' | '/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/events'
+    | '/_authenticated/register'
+    | '/_authenticated/reports'
+    | '/_authenticated/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -71,22 +116,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/workspace': {
-      id: '/_authenticated/workspace'
-      path: '/workspace'
-      fullPath: '/workspace'
-      preLoaderRoute: typeof AuthenticatedWorkspaceRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/events': {
+      id: '/_authenticated/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof AuthenticatedEventsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/register': {
+      id: '/_authenticated/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof AuthenticatedRegisterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedWorkspaceRoute: typeof AuthenticatedWorkspaceRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEventsRoute: typeof AuthenticatedEventsRoute
+  AuthenticatedRegisterRoute: typeof AuthenticatedRegisterRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedWorkspaceRoute: AuthenticatedWorkspaceRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEventsRoute: AuthenticatedEventsRoute,
+  AuthenticatedRegisterRoute: AuthenticatedRegisterRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
