@@ -108,7 +108,7 @@ export function LoginPage() {
           .limit(1);
       }
 
-      await router.navigate({ to: "/workspace" });
+      await router.navigate({ to: "/dashboard" });
     } catch {
       setFormError("Sign-in failed. Check your connection and try again.");
     } finally {
