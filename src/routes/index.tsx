@@ -4,17 +4,17 @@ import { LoginPage } from "@/components/LoginPage";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sign in — Venue Vue" },
+      { title: "Venue Vue — POS Sign-in Portal" },
       {
         name: "description",
         content:
-          "Sign in to Venue Vue, the offline-first point of sale and event management system for venues.",
+          "Access Venue Vue, the offline-first point of sale and event management workspace for venue teams.",
       },
-      { property: "og:title", content: "Sign in — Venue Vue" },
+      { property: "og:title", content: "Venue Vue — POS Sign-in Portal" },
       {
         property: "og:description",
         content:
-          "Sign in to Venue Vue, the offline-first point of sale and event management system for venues.",
+          "Access Venue Vue, the offline-first point of sale and event management workspace for venue teams.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
