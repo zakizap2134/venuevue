@@ -46,86 +46,95 @@
   --color-gold-soft: var(--gold-soft);
   --color-success: var(--success);
   --color-warning: var(--warning);
-  --color-slate-blue: var(--slate-blue);
-  --color-soft-lavender: var(--soft-lavender);
-  --color-soft-cyan: var(--soft-cyan);
-  --color-light-lilac: var(--light-lilac);
-  --color-warm-brown: var(--warm-brown);
+  --color-info: var(--info);
+  --color-selected: var(--selected);
+  --color-disabled: var(--disabled);
+  --color-coffee: var(--coffee);
+  --color-latte: var(--latte);
+  --color-cream: var(--cream);
   --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
   --radius: 0.75rem;
-  --slate-blue: #486a9d;
-  --soft-lavender: #a3a8ca;
-  --soft-cyan: #cee5e8;
-  --light-lilac: #e1dfef;
-  --warm-brown: #663a21;
+  --coffee: #4a3325;
+  --latte: #d8c5ac;
+  --charcoal: #242424;
+  --cream: #faf7f2;
+  --panel: #ffffff;
+  --divider: #e8e6e1;
+  --disabled: #a7a7a7;
+  --subtitle: #4b4b4b;
 
-  --background: var(--light-lilac);
-  --foreground: color-mix(in oklab, var(--slate-blue) 42%, black);
-  --card: var(--soft-cyan);
-  --card-foreground: color-mix(in oklab, var(--slate-blue) 42%, black);
-  --popover: color-mix(in oklab, var(--soft-cyan) 70%, white);
-  --popover-foreground: color-mix(in oklab, var(--slate-blue) 42%, black);
-  --primary: var(--slate-blue);
-  --primary-foreground: white;
-  --secondary: var(--soft-lavender);
-  --secondary-foreground: color-mix(in oklab, var(--slate-blue) 38%, black);
-  --muted: color-mix(in oklab, var(--soft-lavender) 36%, var(--light-lilac));
-  --muted-foreground: color-mix(in oklab, var(--slate-blue) 70%, black);
-  --accent: var(--warm-brown);
-  --accent-foreground: white;
-  --destructive: var(--warm-brown);
-  --destructive-foreground: white;
-  --border: var(--soft-lavender);
-  --input: color-mix(in oklab, var(--soft-lavender) 78%, var(--slate-blue));
-  --ring: var(--warm-brown);
-  --surface: color-mix(in oklab, var(--light-lilac) 84%, white);
-  --surface-raised: color-mix(in oklab, var(--soft-cyan) 58%, white);
+  --background: var(--cream);
+  --foreground: var(--charcoal);
+  --card: var(--panel);
+  --card-foreground: var(--charcoal);
+  --popover: var(--panel);
+  --popover-foreground: var(--charcoal);
+  --primary: var(--coffee);
+  --primary-foreground: var(--panel);
+  --secondary: var(--latte);
+  --secondary-foreground: var(--charcoal);
+  --muted: color-mix(in oklab, var(--latte) 42%, var(--cream));
+  --muted-foreground: var(--subtitle);
+  --accent: var(--coffee);
+  --accent-foreground: var(--panel);
+  --destructive: #d96868;
+  --destructive-foreground: var(--charcoal);
+  --border: var(--divider);
+  --input: var(--divider);
+  --ring: var(--coffee);
+  --surface: var(--cream);
+  --surface-raised: var(--panel);
 
   /* Backward-compatible action aliases used by existing screens. */
-  --gold: var(--warm-brown);
-  --gold-strong: color-mix(in oklab, var(--warm-brown) 82%, black);
-  --gold-soft: color-mix(in oklab, var(--warm-brown) 24%, var(--soft-cyan));
-  --success: var(--slate-blue);
-  --warning: var(--warm-brown);
-  --shadow-lift: 0 12px 32px -12px color-mix(in oklab, var(--slate-blue) 38%, transparent);
-  --shadow-gold-glow: 0 0 0 1px color-mix(in oklab, var(--warm-brown) 35%, transparent),
-    0 8px 28px -8px color-mix(in oklab, var(--slate-blue) 32%, transparent);
+  --gold: var(--coffee);
+  --gold-strong: color-mix(in oklab, var(--coffee) 84%, black);
+  --gold-soft: color-mix(in oklab, var(--coffee) 18%, var(--latte));
+  --success: #6b8f71;
+  --warning: #e9a23b;
+  --info: #6fa8dc;
+  --selected: #8e7cc3;
+  --shadow-lift: 0 12px 32px -12px color-mix(in oklab, var(--coffee) 22%, transparent);
+  --shadow-gold-glow: 0 0 0 1px color-mix(in oklab, var(--coffee) 28%, transparent),
+    0 8px 28px -8px color-mix(in oklab, var(--coffee) 24%, transparent);
 }
 
 :root.dark {
   color-scheme: dark;
-  --background: #0f172a;
-  --foreground: white;
-  --card: #1e293b;
-  --card-foreground: white;
-  --popover: color-mix(in oklab, #1e293b 92%, var(--slate-blue));
-  --popover-foreground: white;
-  --primary: var(--slate-blue);
-  --primary-foreground: white;
-  --secondary: color-mix(in oklab, #1e293b 76%, var(--soft-lavender));
-  --secondary-foreground: var(--light-lilac);
-  --muted: color-mix(in oklab, #1e293b 88%, var(--soft-lavender));
-  --muted-foreground: color-mix(in oklab, var(--light-lilac) 78%, var(--soft-lavender));
-  --accent: var(--warm-brown);
-  --accent-foreground: white;
-  --destructive: color-mix(in oklab, var(--warm-brown) 82%, white);
-  --destructive-foreground: white;
-  --border: color-mix(in oklab, var(--soft-lavender) 45%, #1e293b);
-  --input: color-mix(in oklab, var(--soft-lavender) 55%, #1e293b);
-  --ring: var(--soft-lavender);
-  --surface: color-mix(in oklab, #0f172a 76%, #1e293b);
-  --surface-raised: #1e293b;
-  --gold: color-mix(in oklab, var(--warm-brown) 42%, var(--light-lilac));
-  --gold-strong: var(--light-lilac);
-  --gold-soft: color-mix(in oklab, var(--warm-brown) 45%, #1e293b);
-  --success: var(--soft-cyan);
-  --warning: var(--light-lilac);
+  --background: #121812;
+  --foreground: #e8e8e8;
+  --card: #1f1f1f;
+  --card-foreground: #e8e8e8;
+  --popover: #1f1f1f;
+  --popover-foreground: #e8e8e8;
+  --primary: #2b1f14;
+  --primary-foreground: #ffffff;
+  --secondary: #7a5e45;
+  --secondary-foreground: #ffffff;
+  --muted: #2e2a24;
+  --muted-foreground: #a0a0a0;
+  --accent: #7a5e45;
+  --accent-foreground: #ffffff;
+  --destructive: #b55252;
+  --destructive-foreground: #ffffff;
+  --border: #4b4b4b;
+  --input: #4b4b4b;
+  --ring: #6b52b8;
+  --surface: #2e2a24;
+  --surface-raised: #1f1f1f;
+  --disabled: #4b4b4b;
+  --gold: #7a5e45;
+  --gold-strong: #e8e8e8;
+  --gold-soft: color-mix(in oklab, #7a5e45 58%, #1f1f1f);
+  --success: #3f6b56;
+  --warning: #c27a24;
+  --info: #4a8fd6;
+  --selected: #6b52b8;
   --shadow-lift: 0 12px 32px -12px color-mix(in oklab, black 68%, transparent);
-  --shadow-gold-glow: 0 0 0 1px color-mix(in oklab, var(--soft-lavender) 30%, transparent),
+  --shadow-gold-glow: 0 0 0 1px color-mix(in oklab, var(--secondary) 34%, transparent),
     0 8px 28px -8px color-mix(in oklab, black 64%, transparent);
 }
 
@@ -154,7 +163,7 @@
   h6 {
     font-family: var(--font-display);
     letter-spacing: -0.01em;
-    color: var(--slate-blue);
+    color: var(--foreground);
   }
 
   :root.dark h1,
@@ -163,11 +172,11 @@
   :root.dark h4,
   :root.dark h5,
   :root.dark h6 {
-    color: var(--light-lilac);
+    color: var(--foreground);
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--soft-lavender) 70%, transparent);
+    background: color-mix(in oklab, var(--selected) 56%, transparent);
     color: var(--foreground);
   }
 }
@@ -187,7 +196,7 @@
 
   .interactive-card:hover {
     transform: translateY(-2px);
-    border-color: var(--warm-brown);
+    border-color: var(--accent);
     box-shadow: var(--shadow-gold-glow);
   }
 
@@ -237,14 +246,14 @@
   }
 
   .status-pill-online {
-    border-color: color-mix(in oklab, var(--slate-blue) 55%, var(--soft-lavender));
-    background: color-mix(in oklab, var(--slate-blue) 14%, var(--soft-cyan));
+    border-color: color-mix(in oklab, var(--success) 52%, var(--border));
+    background: color-mix(in oklab, var(--success) 14%, var(--card));
     color: var(--success);
   }
 
   .status-pill-offline {
-    border-color: color-mix(in oklab, var(--warm-brown) 52%, var(--soft-lavender));
-    background: color-mix(in oklab, var(--warm-brown) 13%, var(--soft-cyan));
+    border-color: color-mix(in oklab, var(--warning) 52%, var(--border));
+    background: color-mix(in oklab, var(--warning) 13%, var(--card));
     color: var(--warning);
   }
 
