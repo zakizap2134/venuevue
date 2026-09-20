@@ -111,10 +111,10 @@ function SidebarNav({
           <Store className="size-4" aria-hidden="true" />
         </div>
         <div className={collapsed ? "hidden" : "min-w-0"}>
-          <p className="truncate font-display text-sm font-bold tracking-tight text-foreground">
+          <p className="truncate font-display text-sm font-bold tracking-tight text-primary-foreground">
             Venue Vue
           </p>
-          <p className="truncate text-[0.65rem] uppercase tracking-wide text-muted-foreground">
+          <p className="truncate text-[0.65rem] uppercase tracking-wide text-primary-foreground/70">
             POS Console
           </p>
         </div>
@@ -133,8 +133,8 @@ function SidebarNav({
               collapsed ? "justify-center px-2" : "gap-3 px-3"
             } ${
               active
-                ? "bg-selected/15 text-selected shadow-[inset_0_0_0_1px_var(--selected)]"
-                : "text-muted-foreground hover:bg-surface-raised hover:text-foreground"
+                ? "bg-selected text-primary-foreground shadow-[inset_0_0_0_1px_var(--selected)]"
+                : "text-primary-foreground/75 hover:bg-secondary hover:text-secondary-foreground"
             }`}
           >
             <Icon className="size-4 shrink-0" aria-hidden="true" />
@@ -166,19 +166,19 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar */}
       <aside
-        className={`sticky top-0 hidden h-screen shrink-0 border-r border-border/60 bg-surface/85 backdrop-blur-md transition-[width] duration-200 md:block ${
+        className={`sticky top-0 hidden h-screen shrink-0 border-r border-primary-foreground/15 bg-primary transition-[width] duration-200 md:block ${
           sidebarCollapsed ? "w-16" : "w-64"
         }`}
       >
         <div className="flex h-full flex-col">
           <SidebarNav collapsed={sidebarCollapsed} />
-          <div className="mt-auto border-t border-border/60 p-3">
+          <div className="mt-auto border-t border-primary-foreground/15 p-3">
             <button
               type="button"
               aria-label={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
               title={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
               onClick={() => setSidebarCollapsed((value) => !value)}
-              className={`interactive-btn flex h-10 w-full items-center rounded-lg text-muted-foreground hover:bg-surface-raised hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+              className={`interactive-btn flex h-10 w-full items-center rounded-lg text-primary-foreground/75 hover:bg-secondary hover:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 sidebarCollapsed ? "justify-center" : "gap-3 px-3"
               }`}
             >
@@ -204,13 +204,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             className="absolute inset-0 bg-background/70 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 w-64 border-r border-border/60 bg-surface shadow-[var(--shadow-lift)]">
+          <aside className="absolute inset-y-0 left-0 w-64 border-r border-primary-foreground/15 bg-primary shadow-[var(--shadow-lift)]">
             <div className="flex justify-end p-2">
               <button
                 type="button"
                 aria-label="Close navigation"
                 onClick={() => setMobileOpen(false)}
-                className="interactive-btn grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-surface-raised hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="interactive-btn grid size-9 place-items-center rounded-lg text-primary-foreground/75 hover:bg-secondary hover:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>
@@ -221,22 +221,22 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 border-b border-border/60 bg-surface/85 backdrop-blur-md">
+        <header className="sticky top-0 z-20 border-b border-primary-foreground/15 bg-primary shadow-[var(--shadow-lift)]">
           <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
             <button
               type="button"
               aria-label="Open navigation"
               onClick={() => setMobileOpen(true)}
-              className="interactive-btn grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-surface-raised hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
+              className="interactive-btn grid size-9 shrink-0 place-items-center rounded-lg text-primary-foreground/75 hover:bg-secondary hover:text-secondary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:hidden"
             >
               <Menu className="size-4" aria-hidden="true" />
             </button>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate font-display text-sm font-bold tracking-tight text-foreground">
+              <p className="truncate font-display text-sm font-bold tracking-tight text-primary-foreground">
                 Your venue name
               </p>
-              <p className="truncate text-xs text-muted-foreground">Point of Sale</p>
+              <p className="truncate text-xs text-primary-foreground/70">Point of Sale</p>
             </div>
 
             <ConnectionBadge />
@@ -244,7 +244,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <ThemeToggle />
 
             {/* Signed-in user: avatar, role badge, logout */}
-            <div className="flex shrink-0 items-center gap-2.5 border-l border-border/60 pl-3">
+            <div className="flex shrink-0 items-center gap-2.5 border-l border-primary-foreground/15 pl-3">
               <div
                 className="grid size-9 place-items-center rounded-full bg-selected/15 text-xs font-bold text-selected shadow-[inset_0_0_0_1px_var(--selected)]"
                 aria-hidden="true"
@@ -252,7 +252,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 {initialsFromEmail(data?.email ?? "")}
               </div>
               <div className="hidden min-w-0 leading-tight sm:block">
-                <p className="max-w-[140px] truncate text-xs font-semibold text-foreground">
+                <p className="max-w-[140px] truncate text-xs font-semibold text-primary-foreground">
                   {data?.email ?? "…"}
                 </p>
                 <span className="status-pill status-pill-online mt-0.5 !px-2 !py-0 text-[0.6rem]">
