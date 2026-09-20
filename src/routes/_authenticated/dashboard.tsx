@@ -85,7 +85,7 @@ function Dashboard() {
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {label}
               </p>
-              <div className="grid size-9 place-items-center rounded-xl bg-primary/15 text-gold">
+              <div className="grid size-9 place-items-center rounded-xl bg-info/15 text-info">
                 <Icon className="size-4" aria-hidden="true" />
               </div>
             </div>

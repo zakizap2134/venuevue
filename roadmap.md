@@ -10,3 +10,4 @@
 - [x] Verify the complete authenticated flow
 - [x] Apply the official five-color palette across shared application surfaces and controls
 - [x] Add a persistent class-based dark theme and header theme toggle
+- [x] Apply the official coffee/latte palette with light and dark status accents

@@ -120,9 +120,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const themeScript = `(() => {
+    try {
+      const stored = localStorage.getItem("venue-vue-theme");
+      document.documentElement.classList.toggle("dark", stored === "dark");
+    } catch {}
+  })();`;
+
   return (
     <html lang="en">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <HeadContent />
       </head>
       <body>

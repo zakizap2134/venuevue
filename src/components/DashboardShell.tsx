@@ -133,7 +133,7 @@ function SidebarNav({
               collapsed ? "justify-center px-2" : "gap-3 px-3"
             } ${
               active
-                ? "bg-primary/15 text-gold shadow-[inset_0_0_0_1px_var(--gold-soft)]"
+                ? "bg-selected/15 text-selected shadow-[inset_0_0_0_1px_var(--selected)]"
                 : "text-muted-foreground hover:bg-surface-raised hover:text-foreground"
             }`}
           >
@@ -246,7 +246,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             {/* Signed-in user: avatar, role badge, logout */}
             <div className="flex shrink-0 items-center gap-2.5 border-l border-border/60 pl-3">
               <div
-                className="grid size-9 place-items-center rounded-full bg-primary/20 text-xs font-bold text-gold shadow-[inset_0_0_0_1px_var(--gold-soft)]"
+                className="grid size-9 place-items-center rounded-full bg-selected/15 text-xs font-bold text-selected shadow-[inset_0_0_0_1px_var(--selected)]"
                 aria-hidden="true"
               >
                 {initialsFromEmail(data?.email ?? "")}
