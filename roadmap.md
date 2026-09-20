@@ -8,3 +8,4 @@
 - [x] Add desktop sidebar collapse and mobile navigation drawer
 - [x] Preserve user identity, role, connectivity, welcome banner, and metrics
 - [x] Verify the complete authenticated flow
+- [x] Apply the official five-color palette across shared application surfaces and controls
