@@ -1,4 +1,6 @@
 import { useId, useState, type FormEvent } from "react";
+import { useRouter } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Eye,
   EyeOff,
@@ -13,18 +15,22 @@ import {
 /*
  * Venue Vue sign-in screen.
  *
- * Front-end only for now: validation, loading, and error states are simulated
- * locally until the auth backend is wired up. No global layout components are
- * touched — this screen stands on its own.
+ * Real email/password sign-in against the backend. The signed-in user's role
+ * is looked up automatically from their account — it is never picked on
+ * screen. No global layout components are touched.
  */
 
-type Role = "admin" | "manager" | "cashier";
+const INVALID_CREDENTIALS =
+  "Invalid credentials. Check your email and password, then try again.";
 
-const ROLES: { value: Role; label: string; hint: string }[] = [
-  { value: "admin", label: "Admin", hint: "Full venue control" },
-  { value: "manager", label: "Manager", hint: "Events & reporting" },
-  { value: "cashier", label: "Cashier / Staff", hint: "Register & orders" },
-];
+function mapAuthError(message: string): string {
+  if (/invalid login credentials/i.test(message)) return INVALID_CREDENTIALS;
+  if (/email not confirmed/i.test(message))
+    return "This account hasn't been confirmed yet. Ask your venue admin for help.";
+  if (/too many requests/i.test(message))
+    return "Too many attempts. Wait a moment, then try again.";
+  return message || INVALID_CREDENTIALS;
+}
 
 function LogoMark() {
   return (
@@ -45,13 +51,13 @@ function LogoMark() {
 }
 
 export function LoginPage() {
+  const router = useRouter();
   const emailId = useId();
   const passwordId = useId();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<Role>("cashier");
   const [remember, setRemember] = useState(false);
 
   const [touched, setTouched] = useState({ email: false, password: false });
@@ -82,11 +88,32 @@ export function LoginPage() {
     setSubmitting(true);
     setFormError(null);
 
-    // Placeholder sign-in — replaced when the auth backend lands.
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        setFormError(mapAuthError(error.message));
+        return;
+      }
 
-    setSubmitting(false);
-    setFormError("Invalid credentials. Check your email and password, then try again.");
+      // Role is resolved in the background from the signed-in account —
+      // never chosen on screen.
+      if (data.user) {
+        await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .limit(1);
+      }
+
+      await router.navigate({ to: "/workspace" });
+    } catch {
+      setFormError("Sign-in failed. Check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleForgotPassword() {
@@ -227,36 +254,6 @@ export function LoginPage() {
                 </p>
               )}
             </div>
-
-            {/* Role selector */}
-            <fieldset>
-              <legend className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Sign in as
-              </legend>
-              <div className="grid grid-cols-3 gap-2">
-                {ROLES.map(({ value, label, hint }) => {
-                  const selected = role === value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      role="radio"
-                      aria-checked={selected}
-                      onClick={() => setRole(value)}
-                      disabled={submitting}
-                      title={hint}
-                      className={`interactive-btn rounded-xl border px-2 py-2.5 text-xs font-semibold leading-tight focus-visible:outline-none disabled:opacity-60 ${
-                        selected
-                          ? "border-gold/60 bg-primary text-primary-foreground shadow-[var(--shadow-gold-glow)]"
-                          : "border-input bg-surface-raised text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
 
             {/* Remember me + Forgot password */}
             <div className="flex items-center justify-between gap-3">
