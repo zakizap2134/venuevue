@@ -7,6 +7,8 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   ShoppingCart,
   Store,
@@ -57,16 +59,22 @@ function initialsFromEmail(email: string) {
   return letters.toUpperCase();
 }
 
-function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarNav({
+  collapsed = false,
+  onNavigate,
+}: {
+  collapsed?: boolean;
+  onNavigate?: () => void;
+}) {
   const currentPath = useRouterState({ select: (s) => s.location.pathname });
 
   return (
     <nav aria-label="POS modules" className="flex h-full flex-col gap-1 p-3">
-      <div className="mb-3 flex items-center gap-3 px-2 pt-2">
+      <div className={`mb-3 flex items-center pt-2 ${collapsed ? "justify-center" : "gap-3 px-2"}`}>
         <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-[var(--shadow-gold-glow)]">
           <Store className="size-4" aria-hidden="true" />
         </div>
-        <div className="min-w-0">
+        <div className={collapsed ? "hidden" : "min-w-0"}>
           <p className="truncate font-display text-sm font-bold tracking-tight text-foreground">
             Venue Vue
           </p>
@@ -84,14 +92,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             to={url}
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
-            className={`interactive-btn flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+            title={collapsed ? title : undefined}
+            className={`interactive-btn flex items-center rounded-xl py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+              collapsed ? "justify-center px-2" : "gap-3 px-3"
+            } ${
               active
                 ? "bg-primary/15 text-gold shadow-[inset_0_0_0_1px_var(--gold-soft)]"
                 : "text-muted-foreground hover:bg-surface-raised hover:text-foreground"
             }`}
           >
             <Icon className="size-4 shrink-0" aria-hidden="true" />
-            <span className="truncate">{title}</span>
+            {!collapsed && <span className="truncate">{title}</span>}
           </Link>
         );
       })}
@@ -104,6 +115,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { data } = useMe();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const roleLabel = ROLE_LABELS[data?.role ?? "manager"] ?? "Manager";
 
@@ -111,14 +123,40 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     await queryClient.cancelQueries();
     queryClient.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/", replace: true });
+    navigate({ to: "/login", replace: true });
   }
 
   return (
     <div className="flex min-h-screen bg-background">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border/60 bg-surface/85 backdrop-blur-md md:block">
-        <SidebarNav />
+      <aside
+        className={`sticky top-0 hidden h-screen shrink-0 border-r border-border/60 bg-surface/85 backdrop-blur-md transition-[width] duration-200 md:block ${
+          sidebarCollapsed ? "w-16" : "w-64"
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <SidebarNav collapsed={sidebarCollapsed} />
+          <div className="mt-auto border-t border-border/60 p-3">
+            <button
+              type="button"
+              aria-label={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
+              title={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
+              onClick={() => setSidebarCollapsed((value) => !value)}
+              className={`interactive-btn flex h-10 w-full items-center rounded-lg text-muted-foreground hover:bg-surface-raised hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                sidebarCollapsed ? "justify-center" : "gap-3 px-3"
+              }`}
+            >
+              {sidebarCollapsed ? (
+                <PanelLeftOpen className="size-4" aria-hidden="true" />
+              ) : (
+                <>
+                  <PanelLeftClose className="size-4" aria-hidden="true" />
+                  <span className="text-sm font-medium">Collapse</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* Mobile sidebar overlay */}
