@@ -90,7 +90,7 @@ export async function queueMutation(
   const id = `${table}:${type}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
   const entry: MutationEntry = { id, type, table, data, where, createdAt: Date.now() };
 
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   tx.objectStore(STORE_NAME).put(entry, entry.id);
   await txDone(tx);
@@ -99,7 +99,7 @@ export async function queueMutation(
 
 /** Get all pending (unsynced) mutations. */
 export async function getPendingMutations(): Promise<MutationEntry[]> {
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readonly");
   const all = await promisifyRequest(tx.objectStore(STORE_NAME).getAll());
   return (all as MutationEntry[]).filter(
@@ -109,7 +109,7 @@ export async function getPendingMutations(): Promise<MutationEntry[]> {
 
 /** Mark a mutation as synced by its id. */
 export async function markSynced(mutationId: string): Promise<void> {
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
   const entry = (await promisifyRequest(store.get(mutationId))) as MutationEntry | undefined;
@@ -122,7 +122,7 @@ export async function markSynced(mutationId: string): Promise<void> {
 
 /** Clear all synced mutations, keeping only pending ones. */
 export async function clearSyncedMutations(): Promise<void> {
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
   const all = (await promisifyRequest(store.getAll())) as MutationEntry[];
@@ -138,7 +138,7 @@ export async function clearSyncedMutations(): Promise<void> {
 export async function getUserFromLocal(): Promise<{ user: LocalUser } | null> {
   if (typeof window === "undefined") return null;
   try {
-    const db = await openDB();
+    const db = await openOfflineDB();
     const tx = db.transaction(STORE_NAME, "readonly");
     const entry = (await promisifyRequest(tx.objectStore(STORE_NAME).get("currentUser"))) as
       | UserEntry
@@ -154,7 +154,7 @@ export async function getUserFromLocal(): Promise<{ user: LocalUser } | null> {
 export async function storeUserLocally(userData: LocalUser): Promise<void> {
   if (typeof window === "undefined") return;
   try {
-    const db = await openDB();
+    const db = await openOfflineDB();
     const tx = db.transaction(STORE_NAME, "readwrite");
     const entry: UserEntry = {
       id: "currentUser",
