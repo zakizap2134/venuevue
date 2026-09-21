@@ -17,8 +17,10 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ConnectionBadge } from "@/components/ConnectionBadge";
-import { queueMutation, getUserFromLocal, storeUserLocally } from "@/lib/offline-storage";
+import { ConnectionBadge, useConnectionStatus } from "@/components/ConnectionBadge";
+import { getUserFromLocal, storeUserLocally } from "@/lib/offline-storage";
+import { endOfflineSession, getOfflineSession, isOffline } from "@/lib/offline-auth";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 
 export const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
@@ -73,29 +75,42 @@ export function useMe() {
   return useQuery<{ email: string; role: string } | undefined, Error>({
     queryKey: ["me-offline"],
     queryFn: async () => {
-      // 1. Try IndexedDB first (offline-first)
+      // Offline: trust the copy cached on this device, never touch the network.
+      if (isOffline()) {
+        const local = await getUserFromLocal();
+        if (local?.user) {
+          return { email: local.user.email ?? "", role: local.user.role ?? "manager" };
+        }
+        const session = await getOfflineSession();
+        if (session) return { email: session.email, role: session.role };
+        return undefined;
+      }
+
+      try {
+        const [{ data: userData }, { data: roleData }] = await Promise.all([
+          supabase.auth.getUser(),
+          supabase.from("user_roles").select("role").limit(1),
+        ]);
+
+        if (userData?.user) {
+          const role = (roleData?.[0]?.role as string | undefined) ?? "manager";
+          const email = userData.user.email ?? "";
+          await storeUserLocally({ email, role, userId: userData.user.id });
+          return { email, role };
+        }
+      } catch {
+        // Backend unreachable — fall through to the cached copy.
+      }
+
       const local = await getUserFromLocal();
-      if (local && local.user) {
+      if (local?.user) {
         return { email: local.user.email ?? "", role: local.user.role ?? "manager" };
       }
-
-      // 2. Fall back to Supabase
-      const [{ data: userData }, { data: roleData }] = await Promise.all([
-        supabase.auth.getUser(),
-        supabase.from("user_roles").select("role").limit(1),
-      ]);
-
-      if (userData?.user) {
-        const role = (roleData?.[0]?.role as string | undefined) ?? "manager";
-        const email = userData.user.email ?? "";
-        // Store locally for future offline use
-        await storeUserLocally({ email, role, userId: userData.user.id });
-        return { email, role };
-      }
-
       return undefined;
     },
     staleTime: 60_000,
+    networkMode: "offlineFirst",
+    retry: false,
     enabled: typeof window !== "undefined",
   });
 }
@@ -164,15 +179,25 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data } = useMe();
+  const online = useConnectionStatus();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useOfflineSync();
 
   const roleLabel = ROLE_LABELS[data?.role ?? "manager"] ?? "Manager";
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
     queryClient.clear();
-    await supabase.auth.signOut();
+    // Clears the offline session marker but keeps the credential vault, so
+    // the same person can sign back in with no connection.
+    await endOfflineSession();
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // Offline sign-out is still a valid sign-out.
+    }
     navigate({ to: "/login", replace: true });
   }
 
@@ -285,6 +310,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
+
+        {!online && (
+          <div
+            role="status"
+            className="border-b border-warning/40 bg-warning/15 px-4 py-2 text-xs font-medium text-foreground sm:px-6"
+          >
+            Working offline — showing the last synced data. Anything you record is saved on this
+            device and sent automatically when the connection returns.
+          </div>
+        )}
 
         <main className="min-w-0 flex-1">{children}</main>
       </div>

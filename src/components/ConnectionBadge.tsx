@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 /** Tracks browser connectivity so the badge flips to Offline mode instantly. */
-function useConnectionStatus() {
+export function useConnectionStatus() {
   const [online, setOnline] = useState(true);
 
   useEffect(() => {

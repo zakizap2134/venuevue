@@ -156,6 +156,16 @@ function RootComponent() {
     document.documentElement.classList.toggle("dark", storedTheme === "dark");
   }, []);
 
+  // Cache the app shell so Venue Vue opens with no connection.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    const register = () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    };
+    if (document.readyState === "complete") register();
+    else window.addEventListener("load", register, { once: true });
+  }, []);
+
   // React to sign-in/sign-out anywhere in the app without thrashing on
   // hourly token refreshes.
   useEffect(() => {

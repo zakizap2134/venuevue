@@ -10,14 +10,19 @@
 
 const DB_NAME = "venue-vue-offline";
 const DB_VERSION = 1;
-const STORE_NAME = "mutations";
+export const STORE_NAME = "mutations";
+
+/** Keys in the store that are not queued mutations. */
+function isReservedKey(id: string) {
+  return id === "currentUser" || id === "offlineSession" || id.startsWith("auth:");
+}
 
 function getIndexedDB(): IDBFactory | undefined {
   if (typeof window === "undefined") return undefined;
   return window.indexedDB;
 }
 
-function openDB(): Promise<IDBDatabase> {
+export function openOfflineDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const idb = getIndexedDB();
     if (!idb) {
@@ -37,14 +42,14 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
+export function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
   });
 }
 
-function txDone(tx: IDBTransaction): Promise<void> {
+export function txDone(tx: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
     tx.onabort = () => reject(tx.error ?? new Error("IndexedDB transaction aborted"));
@@ -85,7 +90,7 @@ export async function queueMutation(
   const id = `${table}:${type}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
   const entry: MutationEntry = { id, type, table, data, where, createdAt: Date.now() };
 
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   tx.objectStore(STORE_NAME).put(entry, entry.id);
   await txDone(tx);
@@ -94,17 +99,17 @@ export async function queueMutation(
 
 /** Get all pending (unsynced) mutations. */
 export async function getPendingMutations(): Promise<MutationEntry[]> {
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readonly");
   const all = await promisifyRequest(tx.objectStore(STORE_NAME).getAll());
   return (all as MutationEntry[]).filter(
-    (entry) => entry && entry.id !== "currentUser" && entry.syncedAt === undefined,
+    (entry) => entry && entry.id && !isReservedKey(entry.id) && entry.syncedAt === undefined,
   );
 }
 
 /** Mark a mutation as synced by its id. */
 export async function markSynced(mutationId: string): Promise<void> {
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
   const entry = (await promisifyRequest(store.get(mutationId))) as MutationEntry | undefined;
@@ -117,12 +122,12 @@ export async function markSynced(mutationId: string): Promise<void> {
 
 /** Clear all synced mutations, keeping only pending ones. */
 export async function clearSyncedMutations(): Promise<void> {
-  const db = await openDB();
+  const db = await openOfflineDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
   const all = (await promisifyRequest(store.getAll())) as MutationEntry[];
   for (const entry of all) {
-    if (entry && entry.id !== "currentUser" && entry.syncedAt !== undefined) {
+    if (entry && entry.id && !isReservedKey(entry.id) && entry.syncedAt !== undefined) {
       store.delete(entry.id);
     }
   }
@@ -133,7 +138,7 @@ export async function clearSyncedMutations(): Promise<void> {
 export async function getUserFromLocal(): Promise<{ user: LocalUser } | null> {
   if (typeof window === "undefined") return null;
   try {
-    const db = await openDB();
+    const db = await openOfflineDB();
     const tx = db.transaction(STORE_NAME, "readonly");
     const entry = (await promisifyRequest(tx.objectStore(STORE_NAME).get("currentUser"))) as
       | UserEntry
@@ -149,7 +154,7 @@ export async function getUserFromLocal(): Promise<{ user: LocalUser } | null> {
 export async function storeUserLocally(userData: LocalUser): Promise<void> {
   if (typeof window === "undefined") return;
   try {
-    const db = await openDB();
+    const db = await openOfflineDB();
     const tx = db.transaction(STORE_NAME, "readwrite");
     const entry: UserEntry = {
       id: "currentUser",
