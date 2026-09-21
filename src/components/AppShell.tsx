@@ -1,16 +1,10 @@
 import { useEffect, useState, type ReactNode } from "react";
-import {
-  Cloud,
-  CloudOff,
-  ReceiptText,
-  RefreshCcw,
-  Store,
-  Wallet,
-} from "lucide-react";
+import { Cloud, CloudOff, ReceiptText, RefreshCcw, Store, Wallet } from "lucide-react";
 
-/** Tracks browser connectivity so the badge flips to Offline mode instantly. */
+/** Tracks browser connectivity and syncs offline mutations. */
 function useConnectionStatus() {
   const [online, setOnline] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -23,9 +17,43 @@ function useConnectionStatus() {
     };
   }, []);
 
+  // When coming back online, sync pending mutations
+  useEffect(() => {
+    if (online) {
+      syncOfflineMutations();
+    }
+  }, [online]);
+
   return online;
 }
 
+async function syncOfflineMutations() {
+  const { markSynced, getPendingMutations } = await import("@/lib/offline-storage");
+  const pending = await getPendingMutations();
+  for (const mutation of pending) {
+    try {
+      // Perform the actual Supabase operation based on mutation type
+      const supabase = await import("@/integrations/supabase/client");
+      switch (mutation.type) {
+        case "insert":
+          await supabase.default.from(mutation.table).insert(mutation.data);
+          break;
+        case "update":
+          await supabase.default.from(mutation.table).update(mutation.data).match(mutation.where);
+          break;
+        case "delete":
+          await supabase.default.from(mutation.table).delete().match(mutation.where);
+          break;
+      }
+      await markSynced(mutation.id);
+    } catch (error) {
+      console.error("Failed to sync mutation", mutation.id, error);
+      // Will retry next time coming online
+    }
+  }
+}
+
+/** Connection badge showing online/offline status. */
 function ConnectionBadge() {
   const online = useConnectionStatus();
 
@@ -61,9 +89,7 @@ function QuickStats() {
             <div className="truncate text-[0.65rem] font-medium uppercase tracking-wide text-muted-foreground">
               {label}
             </div>
-            <div className="text-sm font-semibold tabular-nums text-foreground">
-              {value}
-            </div>
+            <div className="text-sm font-semibold tabular-nums text-foreground">{value}</div>
           </div>
         </div>
       ))}
