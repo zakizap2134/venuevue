@@ -96,31 +96,74 @@ export function LoginPage() {
     setFormError(null);
 
     try {
+      if (isOffline()) {
+        await signInOffline();
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
       if (error) {
+        // A network failure while "online" still means no backend reachable.
+        if (/fetch|network|failed to fetch/i.test(error.message)) {
+          await signInOffline();
+          return;
+        }
         setFormError(mapAuthError(error.message));
         return;
       }
 
       // Role is resolved in the background from the signed-in account —
       // never chosen on screen.
+      let role = "manager";
       if (data.user) {
-        await supabase
+        const { data: roleRows } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", data.user.id)
           .limit(1);
+        role = (roleRows?.[0]?.role as string | undefined) ?? "manager";
+
+        // Remember this account on the device so it can sign in offline later.
+        await storeUserLocally({ email: data.user.email ?? email.trim(), role, userId: data.user.id });
+        await cacheCredentialsForOffline({
+          email: data.user.email ?? email.trim(),
+          password,
+          userId: data.user.id,
+          role,
+        });
       }
 
       await router.navigate({ to: "/dashboard" });
     } catch {
-      setFormError("Sign-in failed. Check your connection and try again.");
+      const recovered = await signInOffline();
+      if (!recovered) {
+        setFormError("Sign-in failed. Check your connection and try again.");
+      }
     } finally {
       setSubmitting(false);
     }
+  }
+
+  /** Offline path: verify against the credentials cached on this device. */
+  async function signInOffline(): Promise<boolean> {
+    const session = await verifyOfflineCredentials(email.trim(), password);
+    if (!session) {
+      setFormError(
+        "No connection, and this account hasn't been used on this device yet. Connect once to sign in.",
+      );
+      return false;
+    }
+    await startOfflineSession(session);
+    await storeUserLocally({
+      email: session.email,
+      role: session.role,
+      userId: session.userId,
+    });
+    await router.navigate({ to: "/dashboard" });
+    return true;
   }
 
   function handleForgotPassword() {
