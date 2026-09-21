@@ -2,6 +2,13 @@ import { useId, useState, type FormEvent } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  cacheCredentialsForOffline,
+  isOffline,
+  startOfflineSession,
+  verifyOfflineCredentials,
+} from "@/lib/offline-auth";
+import { storeUserLocally } from "@/lib/offline-storage";
+import {
   Eye,
   EyeOff,
   Loader2,
