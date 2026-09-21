@@ -4,7 +4,7 @@ import { Cloud, CloudOff, ReceiptText, RefreshCcw, Store, Wallet } from "lucide-
 /** Tracks browser connectivity and syncs offline mutations. */
 function useConnectionStatus() {
   const [online, setOnline] = useState(true);
-  const queryClient = useQueryClient();
+
 
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
