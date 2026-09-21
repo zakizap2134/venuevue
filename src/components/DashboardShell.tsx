@@ -179,15 +179,25 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data } = useMe();
+  const online = useConnectionStatus();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useOfflineSync();
 
   const roleLabel = ROLE_LABELS[data?.role ?? "manager"] ?? "Manager";
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
     queryClient.clear();
-    await supabase.auth.signOut();
+    // Clears the offline session marker but keeps the credential vault, so
+    // the same person can sign back in with no connection.
+    await endOfflineSession();
+    try {
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // Offline sign-out is still a valid sign-out.
+    }
     navigate({ to: "/login", replace: true });
   }
 
