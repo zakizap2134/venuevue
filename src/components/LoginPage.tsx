@@ -168,6 +168,25 @@ export function LoginPage() {
     return true;
   }
 
+  /** One-click local demo sign-in — works with or without a connection. */
+  async function handleDemoSignIn() {
+    setFormError(null);
+    setNotice(null);
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PIN);
+    setTouched({ email: true, password: true });
+    setSubmitting(true);
+    try {
+      await seedDemoEnvironment();
+      const ok = await signInOffline(DEMO_EMAIL, DEMO_PIN);
+      if (!ok) {
+        setFormError("Demo account isn't ready yet. Refresh the page and try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   function handleForgotPassword() {
     setFormError(null);
     setNotice("Password reset isn't set up yet — ask your venue admin for help.");
@@ -372,6 +391,11 @@ function validateEmail(value: string): string | null {
 
 function validatePassword(value: string): string | null {
   if (value.length === 0) return "Password is required.";
+  // A numeric PIN (offline terminal login) may be as short as 4 digits.
+  if (/^\d+$/.test(value)) {
+    if (value.length < 4) return "PIN must be at least 4 digits.";
+    return null;
+  }
   if (value.length < 6) return "Password must be at least 6 characters.";
   return null;
 }
