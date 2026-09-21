@@ -8,6 +8,7 @@ import {
   verifyOfflineCredentials,
 } from "@/lib/offline-auth";
 import { storeUserLocally } from "@/lib/offline-storage";
+import { DEMO_EMAIL, DEMO_PIN, seedDemoEnvironment } from "@/lib/demo-seed";
 import {
   Eye,
   EyeOff,
@@ -96,8 +97,9 @@ export function LoginPage() {
     setFormError(null);
 
     try {
-      if (isOffline()) {
-        await signInOffline();
+      // Local demo/offline accounts never touch the backend.
+      if (isOffline() || email.trim().toLowerCase().endsWith("@venuevue.local")) {
+        await signInOffline(email, password);
         return;
       }
 
