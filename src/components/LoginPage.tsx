@@ -8,6 +8,7 @@ import {
   verifyOfflineCredentials,
 } from "@/lib/offline-auth";
 import { storeUserLocally } from "@/lib/offline-storage";
+import { DEMO_EMAIL, DEMO_PIN, seedDemoEnvironment } from "@/lib/demo-seed";
 import {
   Eye,
   EyeOff,
@@ -17,6 +18,7 @@ import {
   Store,
   TriangleAlert,
   UserRound,
+  WifiOff,
 } from "lucide-react";
 
 /*
@@ -96,8 +98,9 @@ export function LoginPage() {
     setFormError(null);
 
     try {
-      if (isOffline()) {
-        await signInOffline();
+      // Local demo/offline accounts never touch the backend.
+      if (isOffline() || email.trim().toLowerCase().endsWith("@venuevue.local")) {
+        await signInOffline(email, password);
         return;
       }
 
@@ -108,7 +111,7 @@ export function LoginPage() {
       if (error) {
         // A network failure while "online" still means no backend reachable.
         if (/fetch|network|failed to fetch/i.test(error.message)) {
-          await signInOffline();
+          await signInOffline(email, password);
           return;
         }
         setFormError(mapAuthError(error.message));
@@ -138,7 +141,7 @@ export function LoginPage() {
 
       await router.navigate({ to: "/dashboard" });
     } catch {
-      const recovered = await signInOffline();
+      const recovered = await signInOffline(email, password);
       if (!recovered) {
         setFormError("Sign-in failed. Check your connection and try again.");
       }
@@ -148,8 +151,8 @@ export function LoginPage() {
   }
 
   /** Offline path: verify against the credentials cached on this device. */
-  async function signInOffline(): Promise<boolean> {
-    const session = await verifyOfflineCredentials(email.trim(), password);
+  async function signInOffline(emailValue: string, passwordValue: string): Promise<boolean> {
+    const session = await verifyOfflineCredentials(emailValue.trim(), passwordValue);
     if (!session) {
       setFormError(
         "No connection, and this account hasn't been used on this device yet. Connect once to sign in.",
@@ -164,6 +167,25 @@ export function LoginPage() {
     });
     await router.navigate({ to: "/dashboard" });
     return true;
+  }
+
+  /** One-click local demo sign-in — works with or without a connection. */
+  async function handleDemoSignIn() {
+    setFormError(null);
+    setNotice(null);
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PIN);
+    setTouched({ email: true, password: true });
+    setSubmitting(true);
+    try {
+      await seedDemoEnvironment();
+      const ok = await signInOffline(DEMO_EMAIL, DEMO_PIN);
+      if (!ok) {
+        setFormError("Demo account isn't ready yet. Refresh the page and try again.");
+      }
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function handleForgotPassword() {
@@ -345,6 +367,22 @@ export function LoginPage() {
                 </>
               )}
             </button>
+
+            {/* Local offline demo access */}
+            <div className="space-y-2 rounded-xl border border-dashed border-border/80 bg-secondary/40 p-3.5">
+              <button
+                type="button"
+                onClick={handleDemoSignIn}
+                disabled={submitting}
+                className="interactive-btn flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-input bg-surface-raised text-sm font-semibold text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+              >
+                <WifiOff className="size-4" aria-hidden="true" />
+                Continue with offline demo account
+              </button>
+              <p className="text-center text-[0.7rem] leading-relaxed text-muted-foreground">
+                Local account · {DEMO_EMAIL} · PIN {DEMO_PIN} — works with no internet.
+              </p>
+            </div>
           </form>
         </div>
 
@@ -370,6 +408,11 @@ function validateEmail(value: string): string | null {
 
 function validatePassword(value: string): string | null {
   if (value.length === 0) return "Password is required.";
+  // A numeric PIN (offline terminal login) may be as short as 4 digits.
+  if (/^\d+$/.test(value)) {
+    if (value.length < 4) return "PIN must be at least 4 digits.";
+    return null;
+  }
   if (value.length < 6) return "Password must be at least 6 characters.";
   return null;
 }

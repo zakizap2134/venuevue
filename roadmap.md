@@ -12,3 +12,4 @@
 - [x] Add a persistent class-based dark theme and header theme toggle
 - [x] Apply the official coffee/latte palette with light and dark status accents
 - [x] Offline mode: app shell cached via service worker, offline sign-in from device credential vault, offline session gate, offline banner, auto-sync on reconnect
+- [x] Presentation demo: local demo account (admin@venuevue.local / PIN 1234) seeded on first load, one-click offline sign-in button, seeded sales/events/inventory rendered on dashboard, register, events, and reports

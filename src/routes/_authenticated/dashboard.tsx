@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CalendarRange, Package, Wallet } from "lucide-react";
 import { useMe, ROLE_LABELS } from "@/components/DashboardShell";
+import { useDemoData } from "@/hooks/useDemoData";
+import { formatCurrency } from "@/lib/demo-seed";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -24,30 +26,35 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-const METRICS = [
-  {
-    icon: Wallet,
-    label: "Total Sales",
-    value: "—",
-    hint: "Today's net sales across all registers",
-  },
-  {
-    icon: CalendarRange,
-    label: "Active Events",
-    value: "0",
-    hint: "Events live at your venue right now",
-  },
-  {
-    icon: Package,
-    label: "Inventory Status",
-    value: "Ready",
-    hint: "Stock levels across the catalog",
-  },
-];
-
 function Dashboard() {
   const { data } = useMe();
+  const demo = useDemoData();
   const roleLabel = ROLE_LABELS[data?.role ?? "manager"] ?? "Manager";
+
+  const totalSales = demo?.sales.reduce((sum, sale) => sum + sale.total, 0) ?? 0;
+  const activeEvents = demo?.events.filter((e) => e.status === "live").length ?? 0;
+  const lowStock = demo?.inventory.filter((i) => i.status !== "in-stock").length ?? 0;
+
+  const METRICS = [
+    {
+      icon: Wallet,
+      label: "Total Sales",
+      value: demo ? formatCurrency(totalSales) : "—",
+      hint: `${demo?.sales.length ?? 0} transactions recorded today`,
+    },
+    {
+      icon: CalendarRange,
+      label: "Active Events",
+      value: demo ? String(activeEvents) : "—",
+      hint: "Events live at your venue right now",
+    },
+    {
+      icon: Package,
+      label: "Inventory Status",
+      value: demo ? (lowStock === 0 ? "Healthy" : `${lowStock} to restock`) : "—",
+      hint: `${demo?.inventory.length ?? 0} items in the catalog`,
+    },
+  ];
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-4 py-8 sm:px-6">
