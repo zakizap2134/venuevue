@@ -110,7 +110,7 @@ export function LoginPage() {
       if (error) {
         // A network failure while "online" still means no backend reachable.
         if (/fetch|network|failed to fetch/i.test(error.message)) {
-          await signInOffline();
+          await signInOffline(email, password);
           return;
         }
         setFormError(mapAuthError(error.message));
@@ -140,7 +140,7 @@ export function LoginPage() {
 
       await router.navigate({ to: "/dashboard" });
     } catch {
-      const recovered = await signInOffline();
+      const recovered = await signInOffline(email, password);
       if (!recovered) {
         setFormError("Sign-in failed. Check your connection and try again.");
       }
@@ -150,8 +150,8 @@ export function LoginPage() {
   }
 
   /** Offline path: verify against the credentials cached on this device. */
-  async function signInOffline(): Promise<boolean> {
-    const session = await verifyOfflineCredentials(email.trim(), password);
+  async function signInOffline(emailValue: string, passwordValue: string): Promise<boolean> {
+    const session = await verifyOfflineCredentials(emailValue.trim(), passwordValue);
     if (!session) {
       setFormError(
         "No connection, and this account hasn't been used on this device yet. Connect once to sign in.",
