@@ -10,7 +10,12 @@
 
 const DB_NAME = "venue-vue-offline";
 const DB_VERSION = 1;
-const STORE_NAME = "mutations";
+export const STORE_NAME = "mutations";
+
+/** Keys in the store that are not queued mutations. */
+function isReservedKey(id: string) {
+  return id === "currentUser" || id === "offlineSession" || id.startsWith("auth:");
+}
 
 function getIndexedDB(): IDBFactory | undefined {
   if (typeof window === "undefined") return undefined;
@@ -37,14 +42,14 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
+export function promisifyRequest<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("IndexedDB request failed"));
   });
 }
 
-function txDone(tx: IDBTransaction): Promise<void> {
+export function txDone(tx: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
     tx.onabort = () => reject(tx.error ?? new Error("IndexedDB transaction aborted"));
@@ -98,7 +103,7 @@ export async function getPendingMutations(): Promise<MutationEntry[]> {
   const tx = db.transaction(STORE_NAME, "readonly");
   const all = await promisifyRequest(tx.objectStore(STORE_NAME).getAll());
   return (all as MutationEntry[]).filter(
-    (entry) => entry && entry.id !== "currentUser" && entry.syncedAt === undefined,
+    (entry) => entry && entry.id && !isReservedKey(entry.id) && entry.syncedAt === undefined,
   );
 }
 
@@ -122,7 +127,7 @@ export async function clearSyncedMutations(): Promise<void> {
   const store = tx.objectStore(STORE_NAME);
   const all = (await promisifyRequest(store.getAll())) as MutationEntry[];
   for (const entry of all) {
-    if (entry && entry.id !== "currentUser" && entry.syncedAt !== undefined) {
+    if (entry && entry.id && !isReservedKey(entry.id) && entry.syncedAt !== undefined) {
       store.delete(entry.id);
     }
   }
