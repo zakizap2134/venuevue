@@ -22,7 +22,7 @@ function getIndexedDB(): IDBFactory | undefined {
   return window.indexedDB;
 }
 
-function openDB(): Promise<IDBDatabase> {
+export function openOfflineDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const idb = getIndexedDB();
     if (!idb) {
