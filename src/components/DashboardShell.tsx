@@ -311,6 +311,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
+        {!online && (
+          <div
+            role="status"
+            className="border-b border-warning/40 bg-warning/15 px-4 py-2 text-xs font-medium text-foreground sm:px-6"
+          >
+            Working offline — showing the last synced data. Anything you record is saved on this
+            device and sent automatically when the connection returns.
+          </div>
+        )}
+
         <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
