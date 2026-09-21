@@ -32,17 +32,19 @@ async function syncOfflineMutations() {
   const pending = await getPendingMutations();
   for (const mutation of pending) {
     try {
-      // Perform the actual Supabase operation based on mutation type
-      const supabase = await import("@/integrations/supabase/client");
+      // Perform the actual backend operation based on mutation type
+      const { supabase } = await import("@/integrations/supabase/client");
+      // Tables are queued dynamically, so the table name is untyped here.
+      const table = supabase.from(mutation.table as never);
       switch (mutation.type) {
         case "insert":
-          await supabase.default.from(mutation.table).insert(mutation.data);
+          await table.insert(mutation.data as never);
           break;
         case "update":
-          await supabase.default.from(mutation.table).update(mutation.data).match(mutation.where);
+          await table.update(mutation.data as never).match(mutation.where as never);
           break;
         case "delete":
-          await supabase.default.from(mutation.table).delete().match(mutation.where);
+          await table.delete().match(mutation.where as never);
           break;
       }
       await markSynced(mutation.id);
