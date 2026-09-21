@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
+import { seedDemoEnvironment } from "@/lib/demo-seed";
 
 function NotFoundComponent() {
   return (
@@ -154,6 +155,12 @@ function RootComponent() {
   useEffect(() => {
     const storedTheme = window.localStorage.getItem("venue-vue-theme");
     document.documentElement.classList.toggle("dark", storedTheme === "dark");
+  }, []);
+
+  // Plant the local demo account + mock data on first load so the app is
+  // fully usable with no connection.
+  useEffect(() => {
+    void seedDemoEnvironment();
   }, []);
 
   // Cache the app shell so Venue Vue opens with no connection.
