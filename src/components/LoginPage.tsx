@@ -18,6 +18,7 @@ import {
   Store,
   TriangleAlert,
   UserRound,
+  WifiOff,
 } from "lucide-react";
 
 /*
@@ -366,6 +367,22 @@ export function LoginPage() {
                 </>
               )}
             </button>
+
+            {/* Local offline demo access */}
+            <div className="space-y-2 rounded-xl border border-dashed border-border/80 bg-secondary/40 p-3.5">
+              <button
+                type="button"
+                onClick={handleDemoSignIn}
+                disabled={submitting}
+                className="interactive-btn flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-input bg-surface-raised text-sm font-semibold text-foreground hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+              >
+                <WifiOff className="size-4" aria-hidden="true" />
+                Continue with offline demo account
+              </button>
+              <p className="text-center text-[0.7rem] leading-relaxed text-muted-foreground">
+                Local account · {DEMO_EMAIL} · PIN {DEMO_PIN} — works with no internet.
+              </p>
+            </div>
           </form>
         </div>
 
