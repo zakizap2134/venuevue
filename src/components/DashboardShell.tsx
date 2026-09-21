@@ -17,8 +17,10 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ConnectionBadge } from "@/components/ConnectionBadge";
-import { queueMutation, getUserFromLocal, storeUserLocally } from "@/lib/offline-storage";
+import { ConnectionBadge, useConnectionStatus } from "@/components/ConnectionBadge";
+import { getUserFromLocal, storeUserLocally } from "@/lib/offline-storage";
+import { endOfflineSession, getOfflineSession, isOffline } from "@/lib/offline-auth";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 
 export const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
